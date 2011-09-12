@@ -51,3 +51,12 @@ GameEngine.prototype.prototype.draw = function(drawCallback) {
     }
 
 }
+
+GameEngine.prototype.update = function() {
+
+    var cnt = this.entities.sizeof;
+    for(var i = 0; i < cnt; i++) {
+        this.entities[i].draw(ctx);
+    }
+
+}
