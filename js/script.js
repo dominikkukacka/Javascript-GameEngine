@@ -35,7 +35,7 @@ GameEngine.prototype.addEntity = function(e) {
     this.entities.push(e);
 }
 
-GameEngine.prototype.prototype.draw = function(drawCallback) {
+GameEngine.prototype.draw = function(drawCallback) {
     
     this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
     this.ctx.save();
@@ -56,7 +56,9 @@ GameEngine.prototype.update = function() {
 
     var cnt = this.entities.sizeof;
     for(var i = 0; i < cnt; i++) {
-        this.entities[i].draw(ctx);
+
+        var entity = this.entities[i];
+        entity.draw();
     }
 
 }
