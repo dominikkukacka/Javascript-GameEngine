@@ -171,8 +171,11 @@ Entity.prototype.draw = function(ctx) {
         var poly = this.polygons[i];
         //console.log(poly);
 
-        ctx.(this.x, this.y, 10, 0, 360, true);
-
+        if(i === 0) {      
+            ctx.moveTo(this.x + poly[0], this.y + poly[1]);
+        } else {
+            ctx.lineTo(this.x + poly[0], this.y + poly[1]);
+        }
     }
     ctx.closePath();
     
