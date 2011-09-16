@@ -46,6 +46,7 @@ GameEngine.prototype.init = function(ctx) {
     this.canvasHalfWidth    = ctx.canvas.width / 2;
     this.canvasHeight       = ctx.canvas.height;
     this.canvasHalfHeight   = ctx.canvas.height / 2;
+
 }
 
 GameEngine.prototype.start = function() {
@@ -68,14 +69,17 @@ GameEngine.prototype.addEntity = function(e) {
 }
 
 GameEngine.prototype.draw = function(drawCallback) {
-    
     this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+    this.ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
+
     this.ctx.save();
     this.ctx.translate(this.canvasHalfWidth, this.canvasHalfHeight);
 
-    var cnt = this.entities.sizeof;
+    var cnt = this.entities.length;
     for(var i = 0; i < cnt; i++) {
-        this.entities[i].draw(ctx);
+        var entity = this.entities[i];
+        if(!entity.removeFromCanvas)
+            entity.draw(this.ctx);
     }
 
     if(drawCallback) {
@@ -86,13 +90,19 @@ GameEngine.prototype.draw = function(drawCallback) {
 }
 
 GameEngine.prototype.update = function() {
-
     var cnt = this.entities.length;
-    for(var i = 0; i < cnt; i++) {
+
+    for(var i = cnt - 1; i >= 0; i--) {
         var entity = this.entities[i];
-        entity.update();
+
+        if(entity.removeFromCanvas) {
+            this.entities.splice(i,1);
+        } else {
+            entity.update();
+        }
     }
 
+   
 }
 
 function Game() {
@@ -106,11 +116,29 @@ Game.prototype.constructor = Game;
 
 
 Game.prototype.start = function() {
-    var e = new Entity(this, 0, 0); 
-    e.radius = 20;
-    this.addEntity(e);
+    this.ship = new Ship(this);
+    this.addEntity(this.ship);
+
+    this.ast1 = new Asteroid(this, 60, 40);
+    this.addEntity(this.ast1);  
+  
+    this.ast2 = new Asteroid(this, -30, -30);
+    this.addEntity(this.ast2);
 
     GameEngine.prototype.start.call(this);
+}
+var run = false;
+Game.prototype.draw = function() {
+     GameEngine.prototype.draw.call(this, function(game) {
+
+        if(game.timer.gameTime > 2 &&  !run) {
+            game.entities[1].removeFromCanvas = true;
+run = true;
+}
+        //game.drawScore();
+        //game.drawLives();
+    });
+
 }
 
 
@@ -118,7 +146,7 @@ function Entity(game, x, y) {
     this.game = game;
     this.x = x;
     this.y = y;
-    this.removeFromWorld = false;
+    this.removeFromCanvas = false;
 }
 
 Entity.prototype.update = function() {
@@ -145,6 +173,74 @@ Entity.prototype.outsideScreen = function() {
         this.y > this.game.halfCanvaseight || this.y < -(this.game.halfCanvasHeight));
 }
 
+
+
+
+
+function Ship(game) {
+    Entity.call(this, game, 0, 0);
+}
+
+Ship.prototype = new Entity();
+Ship.prototype.constructor = Ship;
+
+Ship.prototype.draw = function(ctx) {
+
+
+    ctx.shadowOffsetX = 0;  
+    ctx.shadowOffsetY = 0;  
+    ctx.shadowBlur = 15;  
+    ctx.shadowColor = "rgba(161,245,27, 0.5)";
+
+
+    ctx.lineWidth = 2; 
+    ctx.strokeStyle =  "rgba(161,245,27, 1)";
+    ctx.fillStyle =  "rgba(0,0,0,1)";
+
+    ctx.beginPath();
+
+        ctx.moveTo(0,0);
+        ctx.lineTo(15,45);
+        ctx.lineTo(-15,45)
+    
+    ctx.closePath();
+    ctx.stroke();
+    ctx.fill();
+
+    Entity.prototype.draw.call(this);
+
+}
+
+function Asteroid(game, x, y) {
+    Entity.call(this, game, x, y);
+}
+
+Asteroid.prototype = new Entity();
+Asteroid.prototype.constructor = Asteroid;
+
+Asteroid.prototype.draw = function(ctx) {
+
+
+    ctx.shadowOffsetX = 0;  
+    ctx.shadowOffsetY = 0;  
+    ctx.shadowBlur = 15;  
+    ctx.shadowColor = "rgba(161,245,27, 0.5)";
+
+
+    ctx.lineWidth = 2; 
+    ctx.strokeStyle =  "rgba(161,245,27, 1)";
+    ctx.fillStyle =  "rgba(0,0,0,1)";
+    
+    ctx.beginPath();
+        ctx.arc(this.x, this.y, 10, 0, 360, true);
+    ctx.closePath();
+    
+    ctx.stroke();
+    ctx.fill();
+
+    Entity.prototype.draw.call(this);
+
+}
 
 var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
