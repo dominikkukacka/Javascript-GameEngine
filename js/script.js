@@ -119,10 +119,9 @@ Game.prototype.start = function() {
     this.ship = new Ship(this);
     this.addEntity(this.ship);
 
-/*
     this.ast1 = new Asteroid(this, 60, 40);
     this.addEntity(this.ast1);  
-  
+ /* 
     this.ast2 = new Asteroid(this, -30, -30);
     this.addEntity(this.ast2);
 */
@@ -156,31 +155,34 @@ Entity.prototype.update = function() {
 }
 
 Entity.prototype.draw = function(ctx) {
-    ctx.shadowOffsetX = 0;  
-    ctx.shadowOffsetY = 0;  
-    ctx.shadowBlur = 15;  
-    ctx.shadowColor = "rgba(161,245,27, 0.5)";
+
+    if( this.polygons && this.polygons.length > 0 ) {
+        ctx.shadowOffsetX = 0;  
+        ctx.shadowOffsetY = 0;  
+        ctx.shadowBlur = 15;  
+        ctx.shadowColor = "rgba(161,245,27, 0.5)";
 
 
-    ctx.lineWidth = 2; 
-    ctx.strokeStyle =  "rgba(161,245,27, 1)";
-    ctx.fillStyle =  "rgba(0,0,0,1)";
-    
-    ctx.beginPath();
-    for(i in this.polygons) {
-        var poly = this.polygons[i];
-        //console.log(poly);
+        ctx.lineWidth = 2; 
+        ctx.strokeStyle =  "rgba(161,245,27, 1)";
+        ctx.fillStyle =  "rgba(0,0,0,1)";
+        
+        ctx.beginPath();
+        for(i in this.polygons) {
+            var poly = this.polygons[i];
+            //console.log(poly);
 
-        if(i === 0) {      
-            ctx.moveTo(this.x + poly[0], this.y + poly[1]);
-        } else {
-            ctx.lineTo(this.x + poly[0], this.y + poly[1]);
+            if(i === 0) {      
+                ctx.moveTo(this.x + poly[0], this.y + poly[1]);
+            } else {
+                ctx.lineTo(this.x + poly[0], this.y + poly[1]);
+            }
         }
+        ctx.closePath();
+        
+        ctx.stroke();
+        ctx.fill();
     }
-    ctx.closePath();
-    
-    ctx.stroke();
-    ctx.fill();
 }
 
 Entity.prototype.drawSpriteCentered = function(ctx) {
@@ -206,35 +208,12 @@ Ship.prototype = new Entity();
 Ship.prototype.constructor = Ship;
 
 function Asteroid(game, x, y) {
-    Entity.call(this, game, x, y);
+    Entity.call(this, game, x, y, [[0,0],[5,-1],[9,5],[9,7],[2,10],[0,11],[-5,7],[-3,2],[-4,5],[-5,0],[0,0]]);
 }
 
 Asteroid.prototype = new Entity();
 Asteroid.prototype.constructor = Asteroid;
 
-Asteroid.prototype.draw = function(ctx) {
-
-
-    ctx.shadowOffsetX = 0;  
-    ctx.shadowOffsetY = 0;  
-    ctx.shadowBlur = 15;  
-    ctx.shadowColor = "rgba(161,245,27, 0.5)";
-
-
-    ctx.lineWidth = 2; 
-    ctx.strokeStyle =  "rgba(161,245,27, 1)";
-    ctx.fillStyle =  "rgba(0,0,0,1)";
-    
-    ctx.beginPath();
-        ctx.arc(this.x, this.y, 10, 0, 360, true);
-    ctx.closePath();
-    
-    ctx.stroke();
-    ctx.fill();
-
-    Entity.prototype.draw.call(this);
-
-}
 
 var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
