@@ -119,22 +119,24 @@ Game.prototype.start = function() {
     this.ship = new Ship(this);
     this.addEntity(this.ship);
 
+/*
     this.ast1 = new Asteroid(this, 60, 40);
     this.addEntity(this.ast1);  
   
     this.ast2 = new Asteroid(this, -30, -30);
     this.addEntity(this.ast2);
-
+*/
     GameEngine.prototype.start.call(this);
 }
-var run = false;
+//var run = false;
 Game.prototype.draw = function() {
      GameEngine.prototype.draw.call(this, function(game) {
-
+/*
         if(game.timer.gameTime > 2 &&  !run) {
             game.entities[1].removeFromCanvas = true;
-run = true;
-}
+            run = true;
+        }
+*/
         //game.drawScore();
         //game.drawLives();
     });
@@ -142,10 +144,11 @@ run = true;
 }
 
 
-function Entity(game, x, y) {
+function Entity(game, x, y, polygons) {
     this.game = game;
     this.x = x;
     this.y = y;
+    this.polygons = polygons;
     this.removeFromCanvas = false;
 }
 
@@ -153,13 +156,28 @@ Entity.prototype.update = function() {
 }
 
 Entity.prototype.draw = function(ctx) {
-    if (this.game.showOutlines && this.radius) {
-        ctx.beginPath();
-        ctx.strokeStyle = "green";
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2, false);
-        ctx.stroke();
-        ctx.closePath();
+    ctx.shadowOffsetX = 0;  
+    ctx.shadowOffsetY = 0;  
+    ctx.shadowBlur = 15;  
+    ctx.shadowColor = "rgba(161,245,27, 0.5)";
+
+
+    ctx.lineWidth = 2; 
+    ctx.strokeStyle =  "rgba(161,245,27, 1)";
+    ctx.fillStyle =  "rgba(0,0,0,1)";
+    
+    ctx.beginPath();
+    for(i in this.polygons) {
+        var poly = this.polygons[i];
+        //console.log(poly);
+
+        ctx.(this.x, this.y, 10, 0, 360, true);
+
     }
+    ctx.closePath();
+    
+    ctx.stroke();
+    ctx.fill();
 }
 
 Entity.prototype.drawSpriteCentered = function(ctx) {
@@ -178,38 +196,11 @@ Entity.prototype.outsideScreen = function() {
 
 
 function Ship(game) {
-    Entity.call(this, game, 0, 0);
+    Entity.call(this, game, 0, 0, [[0,0],[15,45],[-15,45]]);
 }
 
 Ship.prototype = new Entity();
 Ship.prototype.constructor = Ship;
-
-Ship.prototype.draw = function(ctx) {
-
-
-    ctx.shadowOffsetX = 0;  
-    ctx.shadowOffsetY = 0;  
-    ctx.shadowBlur = 15;  
-    ctx.shadowColor = "rgba(161,245,27, 0.5)";
-
-
-    ctx.lineWidth = 2; 
-    ctx.strokeStyle =  "rgba(161,245,27, 1)";
-    ctx.fillStyle =  "rgba(0,0,0,1)";
-
-    ctx.beginPath();
-
-        ctx.moveTo(0,0);
-        ctx.lineTo(15,45);
-        ctx.lineTo(-15,45)
-    
-    ctx.closePath();
-    ctx.stroke();
-    ctx.fill();
-
-    Entity.prototype.draw.call(this);
-
-}
 
 function Asteroid(game, x, y) {
     Entity.call(this, game, x, y);
