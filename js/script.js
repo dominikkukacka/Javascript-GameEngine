@@ -9,6 +9,12 @@ window.requestAnimFrame = (function(){
               };
 })();
 
+
+randomFromTo = function(from, to){
+   return Math.floor(Math.random() * (to - from + 1) + from);
+};
+
+
 function Timer() {
     this.gameTime = 0;
     this.maxStep = 0.05;
@@ -54,7 +60,7 @@ GameEngine.prototype.start = function() {
     var that = this;
     (function gameLoop() {
         that.loop();
-        requestAnimFrame(gameLoop, that.ctx.canvas);
+        //requestAnimFrame(gameLoop, that.ctx.canvas);
     })();
 }
 
@@ -119,35 +125,29 @@ Game.prototype.start = function() {
     this.ship = new Ship(this);
     this.addEntity(this.ship);
 
-    this.ast1 = new Asteroid(this, 60, 40);
-    this.addEntity(this.ast1);  
- /* 
-    this.ast2 = new Asteroid(this, -30, -30);
-    this.addEntity(this.ast2);
-*/
+	for(var i = 0; i < 10; i++) {
+		var x = randomFromTo(-this.canvasHalfWidth + 10, this.canvasHalfWidth - 10);
+		var y = randomFromTo(-this.canvasHalfHeight+10, this.canvasHalfHeight - 10);
+		var ast1 = new Asteroid(this, x, y ); 
+		this.addEntity(ast1);  
+	}
     GameEngine.prototype.start.call(this);
 }
-//var run = false;
+
 Game.prototype.draw = function() {
-     GameEngine.prototype.draw.call(this, function(game) {
-/*
-        if(game.timer.gameTime > 2 &&  !run) {
-            game.entities[1].removeFromCanvas = true;
-            run = true;
-        }
-*/
-        //game.drawScore();
-        //game.drawLives();
+	GameEngine.prototype.draw.call(this, function(game) {
     });
 
 }
 
 
-function Entity(game, x, y, polygons) {
+function Entity(game, x, y, polygons, color) {
     this.game = game;
     this.x = x;
     this.y = y;
-    this.polygons = polygons;
+    this.polygons = polygons || [];
+	this.color = color || [161, 245, 27];
+	//this.color = [255,255,255];
     this.removeFromCanvas = false;
 }
 
@@ -160,13 +160,12 @@ Entity.prototype.draw = function(ctx) {
         ctx.shadowOffsetX = 0;  
         ctx.shadowOffsetY = 0;  
         ctx.shadowBlur = 15;  
-        ctx.shadowColor = "rgba(161,245,27, 0.5)";
-
+        ctx.shadowColor = "rgba("+this.color[0]+", "+this.color[1]+", "+this.color[2]+", 0.5)";
 
         ctx.lineWidth = 2; 
-        ctx.strokeStyle =  "rgba(161,245,27, 1)";
+        ctx.strokeStyle = "rgba("+this.color[0]+", "+this.color[1]+", "+this.color[2]+", 1)";
         ctx.fillStyle =  "rgba(0,0,0,1)";
-        
+
         ctx.beginPath();
         for(i in this.polygons) {
             var poly = this.polygons[i];
@@ -201,14 +200,30 @@ Entity.prototype.outsideScreen = function() {
 
 
 function Ship(game) {
-    Entity.call(this, game, 0, 0, [[0,0],[15,45],[-15,45]]);
+    Entity.call(this, game, 0, 0, [[0,0],[7,22],[-7,22]]);
 }
 
 Ship.prototype = new Entity();
 Ship.prototype.constructor = Ship;
 
 function Asteroid(game, x, y) {
-    Entity.call(this, game, x, y, [[0,0],[5,-1],[9,5],[9,7],[2,10],[0,11],[-5,7],[-3,2],[-4,5],[-5,0],[0,0]]);
+
+	var rand1 = Math.random()*21;
+	if(rand1>10)
+		rand1 = -(rand1 - 10);
+
+	var rand2 = Math.random()*21;
+	if(rand2>10)
+		rand2 = -(rand2 - 10);
+
+    Entity.call(
+		this, 
+		game, 
+		x, 
+		y, 
+		[[0+rand1,0],[5,-1+rand2],[9,5],[9+rand1,7+rand2],[2,10],[0,11+rand2],[-5+rand1,7],[-3,2+rand2],[-4,5],[-5+rand1,0+rand2]],
+		[245, 27, 27] 
+	);
 }
 
 Asteroid.prototype = new Entity();
